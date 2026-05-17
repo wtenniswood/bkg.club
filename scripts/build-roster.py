@@ -124,8 +124,7 @@ def annotate_state_ogs(members: list[dict]) -> None:
     """Set member['state'] and member['state_og'] in place using QRZ XML API.
 
     Requires env vars QRZ_USERNAME and QRZ_PASSWORD (an XML-subscription QRZ
-    account). If unset or login fails, members get no state info and no state
-    OG badges are rendered.
+    account). Raises RuntimeError if creds are missing or login fails.
     """
     for member in members:
         member["state"] = None
@@ -134,13 +133,11 @@ def annotate_state_ogs(members: list[dict]) -> None:
     username = os.environ.get("QRZ_USERNAME")
     password = os.environ.get("QRZ_PASSWORD")
     if not username or not password:
-        print("  QRZ_USERNAME/QRZ_PASSWORD not set; skipping state OG enrichment", file=sys.stderr)
-        return
+        raise RuntimeError("QRZ_USERNAME and QRZ_PASSWORD must be set")
 
     session_key = qrz_login(username, password)
     if not session_key:
-        print("  QRZ login failed; skipping state OG enrichment", file=sys.stderr)
-        return
+        raise RuntimeError("QRZ login failed")
 
     for member in members:
         member["state"] = qrz_fetch_state(session_key, member["callsign"])
