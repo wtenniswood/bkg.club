@@ -321,6 +321,12 @@ def update_index(members: list[dict]) -> None:
         "<!-- MEMBER_COUNT:END -->",
         str(len(members)),
     )
+    html = replace_between(
+        html,
+        "<!-- BUILD_TIME:START -->",
+        "<!-- BUILD_TIME:END -->",
+        datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+    )
     INDEX_PATH.write_text(html)
 
 
